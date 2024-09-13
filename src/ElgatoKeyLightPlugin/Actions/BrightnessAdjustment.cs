@@ -1,7 +1,10 @@
 namespace Loupedeck.ElgatoKeyLightPlugin
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
+
+    using Loupedeck.ElgatoKeyLightPlugin.Entities;
 
     public class BrightnessAdjustment : PluginDynamicAdjustment
     {
@@ -14,14 +17,33 @@ namespace Loupedeck.ElgatoKeyLightPlugin
         private const Int32 throttleDelayMs = 250;
 
         public BrightnessAdjustment()
-            : base(displayName: "Brightness", description: "Adjust Brightness", groupName: "Adjustments", hasReset: true)
+            : base(true)
         {
         }
 
         protected override Boolean OnLoad()
         {
-            this._brightness = ElgatoInstances.Light.Brightness;
+            ElgatoInstances.ElgatoService.KeyLightFound += this.ElgatoService_KeyLightFound;
+            ElgatoInstances.ElgatoService.KeylightDisconnected += this.ElgatoService_KeylightDisconnected;
             return base.OnLoad();
+        }
+
+        protected override Boolean OnUnload()
+        {
+            ElgatoInstances.ElgatoService.KeyLightFound -= this.ElgatoService_KeyLightFound;
+            ElgatoInstances.ElgatoService.KeylightDisconnected -= this.ElgatoService_KeylightDisconnected;
+
+            return base.OnUnload();
+        }
+
+        private void ElgatoService_KeyLightFound(Object sender, Entities.Light e)
+        {
+            this.AddParameter(e.DisplayName, "Brightness", e.DisplayName, "Key Lights");
+        }
+
+        private void ElgatoService_KeylightDisconnected(Object sender, Entities.Light e)
+        {
+            this.RemoveParameter(e.DisplayName);
         }
 
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
@@ -33,13 +55,19 @@ namespace Loupedeck.ElgatoKeyLightPlugin
                 if (!this.isProcessing)
                 {
                     this.isProcessing = true;
-                    Task.Run(() => this.ProcessAdjustment());
+                    var light = ElgatoInstances.ElgatoService.GetKeyLight(actionParameter);
+                    Task.Run(() => this.ProcessAdjustment(light));
                 }
             }
         }
 
-        private async Task ProcessAdjustment()
+        private async Task ProcessAdjustment(Light light)
         {
+            if (light == null)
+            {
+                return;
+            }
+
             while (true)
             {
                 Int32 currentDiff;
@@ -67,7 +95,7 @@ namespace Loupedeck.ElgatoKeyLightPlugin
                     this._brightness = 100;
                 }
 
-                ElgatoInstances.Light.SetBrightness(this._brightness);
+                light.SetBrightness(this._brightness);
                 this.AdjustmentValueChanged();
 
                 await Task.Delay(throttleDelayMs);
@@ -76,8 +104,16 @@ namespace Loupedeck.ElgatoKeyLightPlugin
 
         protected override void RunCommand(String actionParameter)
         {
+            var light = ElgatoInstances.ElgatoService.GetKeyLight(actionParameter);
+
+            if (light == null)
+            {
+                return;
+            }
+
             this._brightness = BRIGHTNESS;
-            ElgatoInstances.Light.SetBrightness(BRIGHTNESS);
+
+            light.SetBrightness(BRIGHTNESS);
             this.AdjustmentValueChanged();
         }
 

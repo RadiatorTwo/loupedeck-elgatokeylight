@@ -1,30 +1,62 @@
 ﻿namespace Loupedeck.ElgatoKeyLightPlugin.Services
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.NetworkInformation;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using Loupedeck.ElgatoKeyLightPlugin.Entities;
 
+    using Zeroconf;
+
     public class ElgatoService : IDisposable
     {
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        public event EventHandler<Light> KeyLightFound = (sender, light) => { };
 
-        private CancellationToken CancellationToken => this._cancellationTokenSource.Token;
+        public event EventHandler<Light> KeylightDisconnected = (sender, light) => { };
 
-        public ElgatoService() => this._cancellationTokenSource = new CancellationTokenSource();
+        private readonly Dictionary<String, Light> Lights;
+
+        public ElgatoService() => this.Lights = new Dictionary<String, Light>();
 
         public void ProbeForElgatoDevices()
         {
-            if (ElgatoInstances.Light != null)
-            {
-                return;
-            }
+            var listener = ZeroconfResolver.CreateListener("_elg._tcp.local.", 4000, 2, TimeSpan.FromSeconds(1), 2, 2000);
+            listener.ServiceFound += this.Listener_ServiceFound;
+            listener.ServiceLost += this.Listener_ServiceLost;
 
-            var lightInstance = new Light("Elgato Key Light Mini", 9123, "192.168.1.8");
-            ElgatoInstances.Light = lightInstance;
-            ElgatoInstances.Light.InitDevice();
+            Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith(_ => listener.Dispose());
         }
 
+        private void Listener_ServiceFound(Object sender, IZeroconfHost e)
+        {
+            var lightInstance = new Light(e.DisplayName, e.Services.Values.First<IService>().Port, e.IPAddress);
+            lightInstance.InitDevice();
+
+            this.Lights.Add(e.DisplayName, lightInstance);
+            this.KeyLightFound(sender, lightInstance);
+        }
+
+        private void Listener_ServiceLost(Object sender, IZeroconfHost e)
+        {
+            var light = this.GetKeyLight(e.DisplayName);
+            this.Lights.Remove(e.DisplayName);
+            this.KeylightDisconnected(sender, light);
+        }
+
+        public Light GetKeyLight(String name)
+        {
+            if (String.IsNullOrWhiteSpace(name) || !this.Lights.ContainsKey(name))
+            {
+                return null;
+            }
+            else
+            {
+                return this.Lights[name];
+            }
+        }
 
         public void Dispose()
         {
@@ -37,8 +69,15 @@
             {
                 return;
             }
+        }
 
-            this._cancellationTokenSource.Cancel();
+        public NetworkInterface[] GetPhysicalNetworkInterfaces()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(ni => ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                             ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel &&
+                             ni.OperationalStatus == OperationalStatus.Up)
+                .ToArray();
         }
     }
 }

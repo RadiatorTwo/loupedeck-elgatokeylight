@@ -12,7 +12,5 @@
     public static class ElgatoInstances
     {
         public static ElgatoService ElgatoService;
-
-        public static Light Light;
     }
 }
