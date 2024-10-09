@@ -1,10 +1,5 @@
-namespace Loupedeck.ElgatoKeyLightPlugin
+﻿namespace Loupedeck.ElgatoKeyLightPlugin
 {
-    using System;
-    using System.Linq;
-
-    using Loupedeck.ElgatoKeyLightPlugin.Entities;
-
     public class ToggleCommand : PluginDynamicCommand
     {
         public ToggleCommand()
@@ -12,14 +7,14 @@ namespace Loupedeck.ElgatoKeyLightPlugin
         {
         }
 
-        protected override Boolean OnLoad()
+        protected override bool OnLoad()
         {
             ElgatoInstances.ElgatoService.KeyLightFound += this.ElgatoService_KeyLightFound;
             ElgatoInstances.ElgatoService.KeylightDisconnected += this.ElgatoService_KeylightDisconnected;
             return base.OnLoad();
         }
 
-        protected override Boolean OnUnload()
+        protected override bool OnUnload()
         {
             ElgatoInstances.ElgatoService.KeyLightFound -= this.ElgatoService_KeyLightFound;
             ElgatoInstances.ElgatoService.KeylightDisconnected -= this.ElgatoService_KeylightDisconnected;
@@ -27,20 +22,20 @@ namespace Loupedeck.ElgatoKeyLightPlugin
             return base.OnUnload();
         }
 
-        private void ElgatoService_KeyLightFound(Object sender, Entities.Light e)
+        private void ElgatoService_KeyLightFound(object sender, Entities.Light e)
         {
             this.AddParameter(e.DisplayName, "Toggle On/Off", e.DisplayName, "Key Lights");
         }
 
-        private void ElgatoService_KeylightDisconnected(Object sender, Entities.Light e)
+        private void ElgatoService_KeylightDisconnected(object sender, Entities.Light e)
         {
             this.RemoveParameter(e.DisplayName);
         }
 
-        protected override void RunCommand(String actionParameter)
+        protected override void RunCommand(string actionParameter)
         {
             var light = ElgatoInstances.ElgatoService.GetKeyLight(actionParameter);
-            
+
             if (light == null)
             {
                 return;
@@ -48,13 +43,13 @@ namespace Loupedeck.ElgatoKeyLightPlugin
 
             light.Toggle();
 
-            this.ActionImageChanged(); 
+            this.ActionImageChanged();
         }
 
-        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
+        protected override string GetCommandDisplayName(string actionParameter, PluginImageSize imageSize)
         {
             var light = ElgatoInstances.ElgatoService.GetKeyLight(actionParameter);
-            
+
             if (light == null)
             {
                 return "Off";

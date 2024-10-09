@@ -1,16 +1,11 @@
-﻿namespace Loupedeck.ElgatoKeyLightPlugin.Services
+﻿using System.Net.NetworkInformation;
+
+using Loupedeck.ElgatoKeyLightPlugin.Entities;
+
+using Zeroconf;
+
+namespace Loupedeck.ElgatoKeyLightPlugin.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.NetworkInformation;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Loupedeck.ElgatoKeyLightPlugin.Entities;
-
-    using Zeroconf;
-
     public class ElgatoService : IDisposable
     {
         public event EventHandler<Light> KeyLightFound = (sender, light) => { };
@@ -33,7 +28,7 @@
         private void Listener_ServiceFound(Object sender, IZeroconfHost e)
         {
             var lightInstance = new Light(e.DisplayName, e.Services.Values.First<IService>().Port, e.IPAddress);
-            lightInstance.InitDevice();
+            lightInstance.InitDeviceAsync().GetAwaiter().GetResult();
 
             this.Lights.Add(e.DisplayName, lightInstance);
             this.KeyLightFound(sender, lightInstance);

@@ -33,11 +33,11 @@ copyright: Copyright © 2024 . All rights reserved.
 
 # Location of plugin files on Windows (relative to the plugin base directory).
 # This parameter is required to support Windows.
-pluginFolderWin: win
+pluginFolderWin: .
 
 # Location of plugin files on macOS (relative to the plugin base directory).
 # This parameter is required to support Mac.
-#pluginFolderMac: mac
+#pluginFolderMac: .
 
 # List of devices the plugin is optimized for.
 supportedDevices:
@@ -57,7 +57,7 @@ pluginCapabilities:
     #- ActivatesApplication
 
 # Minimum Loupedeck version supported by the plugin.
-minimumLoupedeckVersion: 5.7
+minimumLoupedeckVersion: 6.0
 
 
 # ==================================================================================================

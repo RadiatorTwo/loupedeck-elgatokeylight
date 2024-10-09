@@ -6,6 +6,7 @@
     using Newtonsoft.Json.Linq;
     using System.Net;
     using System.Linq;
+    using System.Text;
 
     public sealed class Light : IDisposable
     {
@@ -36,54 +37,43 @@
             this.Address = address;
         }
 
-        public void InitDevice()
+        public async Task InitDeviceAsync()
         {
             var light = this;
 
-            WebResponse response = null;
-            Stream body = null;
-            StreamReader reader = null;
-
-            var retries = 3;
+            int retries = 3;
 
             while (!light.Ready && retries > 0)
             {
                 retries--;
-                var request = WebRequest.Create(this.Uri);
-                request.Timeout = 2000;
 
                 try
                 {
-                    response = request.GetResponse();
-                    body = response.GetResponseStream();
-                    reader = new StreamReader(body);
+                    var response = await ElgatoInstances.HttpClientInstance.GetAsync(this.Uri);
 
-                    var endAsync = reader.ReadToEnd();
+                    response.EnsureSuccessStatusCode();
 
-                    light.SetLightData(JObject.Parse(endAsync));
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    light.SetLightData(JObject.Parse(responseContent));
 
                     light.Ready = true;
                 }
-                catch (WebException ex) when (ex.Status == WebExceptionStatus.Timeout || ex.Status == WebExceptionStatus.RequestCanceled)
+                catch (TaskCanceledException ex) when (!ex.CancellationToken.IsCancellationRequested)
                 {
+                    // Timeout aufgetreten
                     if (retries == 0)
                     {
                         throw new Exception("Request was canceled or timed out after retries", ex);
                     }
                 }
-                catch (WebException ex)
+                catch (HttpRequestException ex)
                 {
-                    // Handle other web request errors
+                    // Andere HTTP-Anfragefehler behandeln
                     if (retries == 0)
                     {
                         throw new Exception("An error occurred during the web request after retries", ex);
                     }
-                }
-                finally
-                {
-                    reader?.Dispose();
-                    body?.Dispose();
-                    response?.Dispose();
                 }
             }
         }
@@ -122,7 +112,7 @@
 
             var jsonData = $"{{\"lights\":[{{\"on\":{Convert.ToInt32(on)}}}]}}";
 
-            this.SendRequest(jsonData);
+            this.SendPutRequestAsync(jsonData).GetAwaiter().GetResult();
 
             this.On = on;
         }
@@ -136,7 +126,7 @@
 
             var jsonData = $"{{\"lights\":[{{\"brightness\":{brightness}}}]}}";
 
-            this.SendRequest(jsonData);
+            this.SendPutRequestAsync(jsonData).GetAwaiter().GetResult();
 
             this.Brightness = brightness;
         }
@@ -150,7 +140,7 @@
 
             var jsonData = $"{{\"lights\":[{{\"temperature\":{temperature}}}]}}";
 
-            this.SendRequest(jsonData);
+            this.SendPutRequestAsync(jsonData).GetAwaiter().GetResult();
 
             this.Temperature = temperature;
         }
@@ -164,7 +154,7 @@
 
             var jsonData = $"{{\"lights\":[{{\"hue\":{hue}}}]}}";
 
-            this.SendRequest(jsonData);
+            this.SendPutRequestAsync(jsonData).GetAwaiter().GetResult();
 
             this.Hue = hue;
         }
@@ -178,23 +168,30 @@
 
             var jsonData = $"{{\"lights\":[{{\"hue\":{saturation}}}]}}";
 
-            this.SendRequest(jsonData);
+            this.SendPutRequestAsync(jsonData).GetAwaiter().GetResult();
 
             this.Saturation = saturation;
         }
 
-        private void SendRequest(String jsonData)
+        public async Task SendPutRequestAsync(string jsonData)
         {
-            var request = (HttpWebRequest)WebRequest.Create(this.Uri);
-            request.Method = "PUT";
-            request.ContentType = "application/json";
-            request.ContentLength = jsonData.Length;
-            request.Timeout = 1000;
-            request.ReadWriteTimeout = 1000;
+            // Erstellen des Inhalts mit JSON-Daten
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+            try
             {
-                streamWriter.Write(jsonData);
+                // Senden der PUT-Anfrage
+                var response = await ElgatoInstances.HttpClientInstance.PutAsync(Uri, content);
+
+                // Überprüfen des Antwortstatuscodes (optional)
+                response.EnsureSuccessStatusCode();
+
+                // Verarbeitung der Antwort (optional)
+                var responseBody = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseBody);
+            }
+            catch
+            {
             }
         }
 

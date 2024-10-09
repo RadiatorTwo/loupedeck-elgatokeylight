@@ -2,6 +2,8 @@ namespace Loupedeck.ElgatoKeyLightPlugin
 {
     using System;
 
+    // This class can be used to connect the Loupedeck plugin to an application.
+
     public class ElgatoKeyLightApplication : ClientApplication
     {
         public ElgatoKeyLightApplication()

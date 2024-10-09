@@ -1,16 +1,14 @@
-﻿namespace Loupedeck.ElgatoKeyLightPlugin
+﻿using Loupedeck.ElgatoKeyLightPlugin.Services;
+
+namespace Loupedeck.ElgatoKeyLightPlugin
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    using Loupedeck.ElgatoKeyLightPlugin.Entities;
-    using Loupedeck.ElgatoKeyLightPlugin.Services;
-
     public static class ElgatoInstances
     {
         public static ElgatoService ElgatoService;
+
+        public static readonly HttpClient HttpClientInstance = new HttpClient
+        {
+            Timeout = TimeSpan.FromMilliseconds(2000)
+        };
     }
 }

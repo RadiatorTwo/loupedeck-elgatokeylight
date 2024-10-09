@@ -1,11 +1,7 @@
+﻿using Loupedeck.ElgatoKeyLightPlugin.Entities;
+
 namespace Loupedeck.ElgatoKeyLightPlugin
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    using Loupedeck.ElgatoKeyLightPlugin.Entities;
-
     public class TemperatureAdjustment : PluginDynamicAdjustment
     {
         private const Int32 TEMPERATURE = 285;
@@ -14,7 +10,7 @@ namespace Loupedeck.ElgatoKeyLightPlugin
         private static readonly Object lockObject = new Object();
         private Int32 accumulatedDiff = 0;
         private Boolean isProcessing = false;
-        private const Int32 throttleDelayMs = 250;
+        private const Int32 throttleDelayMs = 10;
 
         public TemperatureAdjustment()
             : base(true)
@@ -105,7 +101,7 @@ namespace Loupedeck.ElgatoKeyLightPlugin
         {
             this._temperature = TEMPERATURE;
             var light = ElgatoInstances.ElgatoService.GetKeyLight(actionParameter);
-            
+
             if (light == null)
             {
                 return;

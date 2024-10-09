@@ -1,25 +1,30 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30128.74
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElgatoKeyLightPlugin", "ElgatoKeyLightPlugin\ElgatoKeyLightPlugin.csproj", "{28D013AD-FE0F-45CB-86B7-A83BE4EE8268}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElgatoKeyLightPlugin", "ElgatoKeyLightPlugin\ElgatoKeyLightPlugin.csproj", "{A8943159-4810-4C0C-904B-40B4952A45DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{28D013AD-FE0F-45CB-86B7-A83BE4EE8268}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28D013AD-FE0F-45CB-86B7-A83BE4EE8268}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28D013AD-FE0F-45CB-86B7-A83BE4EE8268}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28D013AD-FE0F-45CB-86B7-A83BE4EE8268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Debug|x64.ActiveCfg = Debug|x64
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Debug|x64.Build.0 = Debug|x64
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Release|x64.ActiveCfg = Release|x64
+		{A8943159-4810-4C0C-904B-40B4952A45DA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C4CDC172-22D7-4185-B8FF-4B38C7A989F4}
+		SolutionGuid = {BA9B0FB8-272F-41B4-B97C-DF6B8CC226DD}
 	EndGlobalSection
 EndGlobal
